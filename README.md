@@ -598,6 +598,44 @@ O fluxo principal validado no projeto é:
 12. Usuário resolve o alerta
 13. Banco registra o status final como RESOLVIDO
 ```
+---
+## Diagrama de fluxo da aplicação
+
+O fluxo abaixo representa o funcionamento principal da SpaceGuard API, desde a autenticação do usuário até o registro de leituras, geração automática de alertas e resolução do incidente operacional.
+
+```mermaid
+flowchart TD
+    A[Início] --> B[Usuário realiza login]
+    B --> C{Credenciais válidas?}
+
+    C -- Não --> D[Retorna erro 401 - Login ou senha inválidos]
+    D --> Z[Fim]
+
+    C -- Sim --> E[Sistema gera token JWT]
+    E --> F[Usuário acessa rotas protegidas com Bearer Token]
+
+    F --> G[Cadastrar ou consultar satélites]
+    G --> H[Cadastrar sensor vinculado ao satélite]
+
+    H --> I[Registrar leitura do sensor]
+    I --> J[Sistema recupera faixa operacional do sensor]
+    J --> K{Valor está dentro dos limites?}
+
+    K -- Sim --> L[Leitura registrada sem geração de alerta]
+    L --> Z[Fim]
+
+    K -- Não --> M[Sistema classifica nível do alerta]
+    M --> N[Gera alerta automaticamente]
+    N --> O[Alerta fica com status ABERTO]
+    O --> P[Usuário consulta alertas abertos]
+    P --> Q[Usuário resolve alerta]
+    Q --> R[Sistema atualiza status para RESOLVIDO]
+    R --> S[Registra data e hora de resolução]
+    S --> Z[Fim]
+```
+
+Esse fluxo representa a principal regra de negócio da aplicação: sensores vinculados a satélites registram leituras, e quando uma leitura ultrapassa os limites configurados, o sistema gera automaticamente um alerta operacional para acompanhamento.
+
 
 ---
 
